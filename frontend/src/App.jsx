@@ -19,15 +19,16 @@ function App() {
   // ==========================
   // Search Incident
   // ==========================
-  const searchIncident = async () => {
+    const searchIncident = async () => {
     setLoading(true);
     setResult(null);
     setSummary("");
 
     try {
       const response = await axios.get(
-        `http://localhost:5001/api/incident/${incident}`
-      );
+  `https://ai-incident-intelligence-hub.onrender.com/api/incident/${incident}`
+);
+
 console.log("Response received:", response);
 console.log("Response data:", response.data);
       if (response.data.length > 0) {
@@ -82,7 +83,7 @@ Description: ${result.summary}
       console.log("Calling Gemini API...");
 
       const response = await axios.post(
-        "http://localhost:5001/api/summary",
+        "https://ai-incident-intelligence-hub.onrender.com/api/summary",
         {
           incident: incidentText,
         }

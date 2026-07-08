@@ -16,4 +16,4 @@ function ActionButtons({ generateAISummary }) {
   );
 }
 
-export default ActionButtons;
+export default ActionButtons;   
