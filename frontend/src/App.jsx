@@ -121,7 +121,16 @@ const escalateToXMatters = async () => {
     const response = await axios.post(
       "https://ai-incident-intelligence-hub.onrender.com/api/xmatters",
       {
-        incident: result,
+        incident: {
+  number: incident,
+  application: result.application,
+  priority: result.priority,
+  severity: result.severity,
+  status: result.status,
+  team: result.team,
+  summary: result.summary,
+  aiSummary: summary
+}
       }
     );
 
