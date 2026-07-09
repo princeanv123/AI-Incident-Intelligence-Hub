@@ -106,7 +106,32 @@ Description: ${result.summary}
       alert("Unable to generate AI Summary");
     }
   };
+// ==========================
+// Escalate to xMatters
+// ==========================
+const escalateToXMatters = async () => {
+  try {
+    if (!result) {
+      alert("Please search for an incident first.");
+      return;
+    }
 
+    alert("Calling xMatters...");
+
+    const response = await axios.post(
+      "https://ai-incident-intelligence-hub.onrender.com/api/xmatters",
+      {
+        incident: result,
+      }
+    );
+
+    alert(response.data.message);
+
+  } catch (err) {
+    console.error(err);
+    alert("Unable to escalate to xMatters");
+  }
+};
   return (
     <div className="App">
       <Header />
@@ -131,6 +156,7 @@ Description: ${result.summary}
 
           <ActionButtons
             generateAISummary={generateAISummary}
+            escalateToXMatters={escalateToXMatters}
           />
         </>
       )}

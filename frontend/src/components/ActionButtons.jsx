@@ -1,19 +1,23 @@
-function ActionButtons({ generateAISummary }) {
+function ActionButtons({
+  generateAISummary,
+  escalateToXMatters,
+  createJiraTicket
+}) {
   return (
     <div className="action-buttons">
       <button onClick={generateAISummary}>
         Generate AI Summary
       </button>
 
-      <button>
+      <button onClick={escalateToXMatters}>
         Escalate to xMatters
       </button>
 
-      <button>
+      <button onClick={createJiraTicket}>
         Create Jira Ticket
       </button>
     </div>
   );
 }
 
-export default ActionButtons;   
+export default ActionButtons;

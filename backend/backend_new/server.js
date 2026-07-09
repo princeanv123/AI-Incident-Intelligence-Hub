@@ -135,6 +135,57 @@ ${incident}
   }
 
 });
+// ======================
+// Escalate to xMatters
+// ======================
+app.post("/api/xmatters", async (req, res) => {
+
+  try {
+
+    const { incident } = req.body;
+
+    console.log("Sending incident to xMatters...");
+
+    const response = await axios.post(
+      process.env.XMATTERS_WEBHOOK,
+      {
+        application: incident.application,
+        priority: incident.priority,
+        severity: incident.severity,
+        status: incident.status,
+        team: incident.team,
+        summary: incident.summary
+      },
+      {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    console.log("xMatters Response:", response.data);
+
+    res.json({
+      success: true,
+      message: "Incident escalated to xMatters successfully!"
+    });
+
+  } catch (error) {
+
+    console.error("xMatters Error:");
+
+    if (error.response) {
+      console.error(error.response.data);
+    }
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to escalate incident to xMatters"
+    });
+
+  }
+
+});
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
 });
