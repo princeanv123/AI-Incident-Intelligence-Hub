@@ -148,14 +148,19 @@ app.post("/api/xmatters", async (req, res) => {
 
     const response = await axios.post(
       process.env.XMATTERS_WEBHOOK,
-      {
-        application: incident.application,
-        priority: incident.priority,
-        severity: incident.severity,
-        status: incident.status,
-        team: incident.team,
-        summary: incident.summary
-      },
+     {
+  Priority: incident.priority,
+  Summary: `${incident.number} - ${incident.summary}`,
+  Description: `
+Application : ${incident.application}
+Status      : ${incident.status}
+Team        : ${incident.team}
+Severity    : ${incident.severity}
+
+AI Summary:
+${incident.aiSummary}
+`
+},
       {
         headers: {
           "Content-Type": "application/json"
