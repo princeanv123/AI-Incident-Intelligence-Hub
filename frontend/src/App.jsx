@@ -7,6 +7,7 @@ import IncidentCard from "./components/IncidentCard";
 import AISummary from "./components/AISummary";
 import ActionButtons from "./components/ActionButtons";
 import Footer from "./components/Footer";
+import InfrastructureHealth from "./components/InfrastructureHealth";
 
 import "./App.css";
 
@@ -162,7 +163,7 @@ const escalateToXMatters = async () => {
           <IncidentCard result={result} />
 
           <AISummary summary={summary || result.summary} />
-
+          <InfrastructureHealth />
           <ActionButtons
             generateAISummary={generateAISummary}
             escalateToXMatters={escalateToXMatters}
