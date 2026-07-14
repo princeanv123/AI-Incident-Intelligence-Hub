@@ -2,89 +2,118 @@ const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
 require("dotenv").config();
-
 const { GoogleGenAI } = require("@google/genai");
 
-// ======================
-// Initialize Express
-// ======================
-const app = express();
-const PORT = process.env.PORT || 5001;
-
-app.use(cors());
-app.use(express.json());
-
-// ======================
-// Initialize Gemini
-// ======================
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-console.log("====================================");
-console.log("AI Incident Intelligence Hub");
 console.log("Gemini Loaded:", !!process.env.GEMINI_API_KEY);
-console.log("====================================");
+const app = express();
 
-// ======================
-// Health Check
-// ======================
-app.get("/", (req, res) => {
-  res.send("🚀 AI Incident Intelligence Hub Backend Running");
+app.use(cors());
+app.use(express.json());
+
+    // Sample Incident Data
+    const incidents = [
+    {
+        id: "INC001245",
+        application: "Workday",
+        priority: "P1",
+        severity: "High",
+        status: "Open",
+        team: "Database Team",
+        summary:
+        "Database connection pool is exhausted due to high API traffic. AI recommends restarting the database service and scaling connection limits."
+    },
+    {
+        id: "INC001246",
+        application: "SAP",
+        priority: "P2",
+        severity: "Medium",
+        status: "In Progress",
+        team: "SAP Team",
+        summary:
+        "Background jobs are delayed due to heavy processing. AI recommends checking batch jobs and increasing processing capacity."
+    }
+    ];
+
+    // Home API
+    app.get("/", (req, res) => {
+    res.send("🚀 AI Incident Intelligence Hub Backend is Running");
+    });
+
+    app.get("/api/incidents", (req, res) => {
+  res.json(incidents);
 });
-// ======================
-// Get Incident from ServiceNow
-// ======================
+    const PORT = process.env.PORT || 5001;
 
-app.get("/api/incident/:incidentNumber", async (req, res) => {
+
+   app.get("/api/incident/:number", async (req, res) => {
   try {
-    const incidentNumber = req.params.incidentNumber;
 
-    console.log("⭐ Request received");
-    console.log("Searching Incident:", incidentNumber);
-
-    console.log("⭐ Calling ServiceNow...");
-
+    console.log("Searching:", req.params.number);
+console.log("INSTANCE_URL:", process.env.INSTANCE_URL);
+console.log("USERNAME:", process.env.SN_USERNAME);
+console.log("Password Loaded:", !!process.env.SN_PASSWORD);
     const response = await axios.get(
       `${process.env.INSTANCE_URL}/api/now/table/incident`,
       {
-        params: {
-          sysparm_query: `number=${incidentNumber}`,
-          sysparm_display_value: true,
-        },
         auth: {
           username: process.env.SN_USERNAME,
           password: process.env.SN_PASSWORD,
         },
-        timeout: 15000, // ⭐ Add this
+        params: {
+          sysparm_query: `number=${req.params.number}`,
+          sysparm_limit: 1,
+        },
       }
     );
 
-    console.log("⭐ ServiceNow responded");
-    console.log("Incident Retrieved Successfully");
+    console.log(response.data);
 
     res.json(response.data.result);
 
-  } catch (error) {
-    console.log("⭐ Error occurred");
+  } catch (err) {
 
-    console.error(error.code);
-    console.error(error.message);
+    console.log("========== ERROR ==========");
+console.log("Message:", err.message);
 
-    if (error.response) {
-      console.error(error.response.data);
-      return res.status(error.response.status).json(error.response.data);
-    }
+if (err.response) {
+  console.log("Status:", err.response.status);
+  console.log("Data:", err.response.data);
+}
 
     res.status(500).json({
-      error: "Unable to fetch incident from ServiceNow",
+      error: "Unable to fetch incident"
     });
+
   }
 });
-// ======================
-// Generate AI Summary
-// ======================
+// =============================
+// Generate AI Summary using Gemini
+// =============================
+console.log("Summary API route registered");
+// =============================
+// Test API
+// =============================
+app.post("/api/test", (req, res) => {
+
+  console.log("===== TEST ROUTE HIT =====");
+  console.log(req.body);
+
+  res.json({
+    success: true,
+    message: "Test route is working!"
+  });
+
+});
+ 
+
 app.post("/api/summary", async (req, res) => {
+
+  console.log("===== SUMMARY API CALLED =====");
+  console.log(req.body);
 
   try {
 
@@ -92,26 +121,22 @@ app.post("/api/summary", async (req, res) => {
 
     if (!incident) {
       return res.status(400).json({
-        error: "Incident details are required."
+        error: "Incident details are required.",
       });
     }
 
-    console.log("Generating AI Summary...");
-
     const prompt = `
-You are an IT Incident Management expert.
+You are an IT Operations AI Assistant.
 
-Analyze the following ServiceNow incident and provide:
-
-1. Executive Summary
-2. Business Impact
-3. Probable Root Cause
-4. Recommended Resolution
-5. Priority Recommendation
+Summarize the following ServiceNow incident in simple business language.
 
 Incident Details:
-
 ${incident}
+
+Provide:
+1. Summary
+2. Possible Root Cause
+3. Recommended Next Step
 `;
 
     const response = await ai.models.generateContent({
@@ -119,81 +144,31 @@ ${incident}
       contents: prompt,
     });
 
-    const summary = response.text || "No AI summary generated.";
-
-    console.log("AI Summary Generated");
-
-    res.json({
-      summary,
-    });
-
-  } catch (error) {
-
-    console.error("Gemini Error:", error);
-
-    res.status(500).json({
-      error: "Unable to generate AI Summary"
-    });
-
-  }
-
-});
-// ======================
-// Escalate to xMatters
-// ======================
-app.post("/api/xmatters", async (req, res) => {
-
-  try {
-
-    const { incident } = req.body;
-
-    console.log("Sending incident to xMatters...");
-
-    const response = await axios.post(
-      process.env.XMATTERS_WEBHOOK,
-     {
-  Priority: incident.priority,
-  Summary: `${incident.number} - ${incident.summary}`,
-  Description: `
-Application : ${incident.application}
-Status      : ${incident.status}
-Team        : ${incident.team}
-Severity    : ${incident.severity}
-
-AI Summary:
-${incident.aiSummary}
-`
-},
-      {
-        headers: {
-          "Content-Type": "application/json"
-        }
-      }
-    );
-
-    console.log("xMatters Response:", response.data);
+    console.log("Gemini raw response:");
+    console.dir(response, { depth: null });
 
     res.json({
-      success: true,
-      message: "Incident escalated to xMatters successfully!"
+      summary: response.text,
     });
 
-  } catch (error) {
+} catch (error) {
 
-    console.error("xMatters Error:");
+  console.log("========== GEMINI ERROR ==========");
+  console.error(error);
 
-    if (error.response) {
-      console.error(error.response.data);
-    }
-
-    res.status(500).json({
-      success: false,
-      message: "Failed to escalate incident to xMatters"
-    });
-
+  if (error.response) {
+    console.log(error.response.data);
   }
 
+  if (error.stack) {
+    console.log(error.stack);
+  }
+
+  res.status(500).json({
+    error: error.message,
+  });
+  }
 });
-app.listen(PORT, () => {
-  console.log(`🚀 Server running on port ${PORT}`);
-});
+    app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    });
