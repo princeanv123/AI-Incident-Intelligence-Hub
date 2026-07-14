@@ -37,12 +37,13 @@ app.get("/", (req, res) => {
 // ======================
 
 app.get("/api/incident/:incidentNumber", async (req, res) => {
-
   try {
-
     const incidentNumber = req.params.incidentNumber;
 
+    console.log("⭐ Request received");
     console.log("Searching Incident:", incidentNumber);
+
+    console.log("⭐ Calling ServiceNow...");
 
     const response = await axios.get(
       `${process.env.INSTANCE_URL}/api/now/table/incident`,
@@ -55,16 +56,20 @@ app.get("/api/incident/:incidentNumber", async (req, res) => {
           username: process.env.SN_USERNAME,
           password: process.env.SN_PASSWORD,
         },
+        timeout: 15000, // ⭐ Add this
       }
     );
 
+    console.log("⭐ ServiceNow responded");
     console.log("Incident Retrieved Successfully");
 
     res.json(response.data.result);
 
   } catch (error) {
+    console.log("⭐ Error occurred");
 
-    console.error("ServiceNow Error:");
+    console.error(error.code);
+    console.error(error.message);
 
     if (error.response) {
       console.error(error.response.data);
@@ -74,9 +79,7 @@ app.get("/api/incident/:incidentNumber", async (req, res) => {
     res.status(500).json({
       error: "Unable to fetch incident from ServiceNow",
     });
-
   }
-
 });
 // ======================
 // Generate AI Summary

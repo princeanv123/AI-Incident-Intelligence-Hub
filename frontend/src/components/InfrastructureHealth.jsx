@@ -8,23 +8,14 @@ function InfrastructureHealth() {
         borderRadius: "12px",
       }}
     >
-      <h2>Infrastructure Health Dashboard</h2>
-
-      <p style={{ color: "#555", marginBottom: "15px" }}>
-        Live infrastructure metrics powered by Grafana, Prometheus, and Node
-        Exporter. This dashboard helps correlate incident details with
-        real-time system health.
-      </p>
+      <h2>Infrastructure Health</h2>
 
       <iframe
-        src="http://localhost:3000/d/rYdddlPWk/node-exporter-full?orgId=1&from=now-24h&to=now&timezone=browser&var-ds_prometheus=afrm4aq2wnhfke&var-job=node_exporter&var-nodename=07b0c487a897&var-node=node-exporter:9100&refresh=1m&kiosk"
+        src="http://localhost:3000/d/rYdddlPWk/node-exporter-full?orgId=1&kiosk"
         width="100%"
-        height="700"
-        title="Infrastructure Dashboard"
-        style={{
-          border: "none",
-          borderRadius: "10px",
-        }}
+        height="900"
+        frameBorder="0"
+        title="Grafana Dashboard"
       />
     </div>
   );

@@ -159,17 +159,19 @@ const escalateToXMatters = async () => {
       )}
 
       {result && (
-        <>
-          <IncidentCard result={result} />
+  <>
+    <IncidentCard result={result} />
 
-          <AISummary summary={summary || result.summary} />
-          <InfrastructureHealth />
-          <ActionButtons
-            generateAISummary={generateAISummary}
-            escalateToXMatters={escalateToXMatters}
-          />
-        </>
-      )}
+    <ActionButtons
+      generateAISummary={generateAISummary}
+      escalateToXMatters={escalateToXMatters}
+    />
+
+    <AISummary summary={summary || result.summary} />
+
+    <InfrastructureHealth />
+  </>
+)}
 
       <Footer />
     </div>
