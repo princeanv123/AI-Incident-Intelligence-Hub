@@ -1,21 +1,27 @@
-function ActionButtons({
-  generateAISummary,
-  escalateToXMatters,
-  createJiraTicket
-}) {
+function ActionButtons({ generateAISummary }) {
+
+  const underConstruction = (feature) => {
+    alert(`🚧 ${feature} is under construction.\n\nComing soon in the next release.`);
+  };
+
   return (
     <div className="action-buttons">
+
+      {/* Working Button */}
       <button onClick={generateAISummary}>
         Generate AI Summary
       </button>
 
-      <button onClick={escalateToXMatters}>
+      {/* Under Construction */}
+      <button onClick={() => underConstruction("Escalate to xMatters")}>
         Escalate to xMatters
       </button>
 
-      <button onClick={createJiraTicket}>
+      {/* Under Construction */}
+      <button onClick={() => underConstruction("Create Jira Ticket")}>
         Create Jira Ticket
       </button>
+
     </div>
   );
 }

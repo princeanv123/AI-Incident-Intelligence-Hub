@@ -10,13 +10,13 @@ function InfrastructureHealth() {
     >
       <h2>Infrastructure Health</h2>
 
-      <iframe
-        src="http://localhost:3000/d/rYdddlPWk/node-exporter-full?orgId=1&kiosk"
-        width="100%"
-        height="900"
-        frameBorder="0"
-        title="Grafana Dashboard"
-      />
+     <iframe
+  src="http://localhost:3000/d/rYdddlPWk/node-exporter-full?orgId=1&kiosk"
+  width="100%"
+  height="600"
+  frameBorder="0"
+  title="Infrastructure Health"
+/>
     </div>
   );
 }

@@ -46,7 +46,7 @@ app.use(express.json());
     app.get("/api/incidents", (req, res) => {
   res.json(incidents);
 });
-    const PORT = 5001;
+    const PORT = process.env.PORT || 5001;
 
 
    app.get("/api/incident/:number", async (req, res) => {
